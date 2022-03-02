@@ -2,6 +2,7 @@ package com.br.car
 
 import com.br.config.ClusterScyllaConfig
 import com.datastax.driver.core.Session
+import java.util.*
 import javax.enterprise.context.ApplicationScoped
 
 @ApplicationScoped
@@ -15,7 +16,7 @@ class CarDAO(
         session.execute(bs)
     }
 
-    fun findAll() : List<Car> {
+    fun findAll(): List<Car> {
         val ps = session.prepare("SELECT * FROM car")
         val bs = ps.bind()
         val rs = session.execute(bs)
@@ -25,7 +26,7 @@ class CarDAO(
         }
     }
 
-    fun findByColor(color: String) : List<Car> {
+    fun findByColor(color: String): List<Car> {
         val ps = session.prepare("SELECT * FROM car WHERE color = ?")
         val bs = ps.bind(color)
         val rs = session.execute(bs)
@@ -33,5 +34,13 @@ class CarDAO(
         return rs.map {
             CarRowMapper.build(it)
         }
+    }
+
+    fun findById(id: UUID): Car? {
+        val ps = session.prepare("SELECT * FROM car WHERE id = ?")
+        val bs = ps.bind(id)
+        val rs = session.execute(bs)
+
+        return CarRowMapper.build(rs.one())
     }
 }
